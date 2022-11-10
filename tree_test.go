@@ -30,17 +30,17 @@ func TestTree(t *testing.T) {
 		}
 	}
 
-	if k, v := tree.Min(); k != 0 && v != 0 {
+	if k, v, ok := tree.Min(); !ok || k != 0 || v != 0 {
 		t.Errorf("failed to delete min, got key %v, value %v", k, v)
 	}
-	if k, v := tree.DeleteMin(); k != 0 && v != 0 {
+	if k, v, ok := tree.DeleteMin(); !ok || k != 0 || v != 0 {
 		t.Errorf("failed to delete min, got key %v, value %v", k, v)
 	}
 
-	if k, v := tree.Max(); k != 9 && v != 81 {
+	if k, v, ok := tree.Max(); !ok || k != 9 || v != 81 {
 		t.Errorf("failed to delete max, got key %v, value %v", k, v)
 	}
-	if k, v := tree.DeleteMax(); k != 9 && v != 81 {
+	if k, v, ok := tree.DeleteMax(); !ok || k != 9 || v != 81 {
 		t.Errorf("failed to delete max, got key %v, value %v", k, v)
 	}
 	length := 7

@@ -9,8 +9,7 @@ func NewTree[K Ordered, V Any]() *Tree[K, V] {
 	return &Tree[K, V]{}
 }
 
-func (t *Tree[K, V]) Put(k K, v V) bool {
-	ok := false
+func (t *Tree[K, V]) Put(k K, v V) (ok bool) {
 	t.root, ok = t.root.Put(k, v)
 	t.root.red = false
 	if ok {
@@ -19,7 +18,7 @@ func (t *Tree[K, V]) Put(k K, v V) bool {
 	return ok
 }
 
-func (t *Tree[K, V]) Get(k K) (V, bool) {
+func (t *Tree[K, V]) Get(k K) (v V, ok bool) {
 	return t.root.Get(k)
 }
 
@@ -45,22 +44,28 @@ func (t *Tree[K, V]) Values() []V {
 	return values
 }
 
-func (t *Tree[K, V]) Min() (k K, v V) {
+func (t *Tree[K, V]) Min() (k K, v V, ok bool) {
+	if t.root == nil {
+		return k, v, false
+	}
 	n := t.root.Min()
 	if n != nil {
 		k = n.key
 		v = n.value
 	}
-	return k, v
+	return k, v, true
 }
 
-func (t *Tree[K, V]) Max() (k K, v V) {
+func (t *Tree[K, V]) Max() (k K, v V, ok bool) {
+	if t.root == nil {
+		return k, v, false
+	}
 	n := t.root.Max()
 	if n != nil {
 		k = n.key
 		v = n.value
 	}
-	return k, v
+	return k, v, true
 }
 
 func (t *Tree[K, V]) Len() int {
@@ -83,7 +88,10 @@ func (t *Tree[K, V]) Delete(k K) (v V, ok bool) {
 	return deleted.value, true
 }
 
-func (t *Tree[K, V]) DeleteMin() (k K, v V) {
+func (t *Tree[K, V]) DeleteMin() (k K, v V, ok bool) {
+	if t.root == nil {
+		return k, v, false
+	}
 	var deleted *node[K, V]
 	t.root, deleted = t.root.deleteMin()
 	if deleted != nil {
@@ -91,10 +99,13 @@ func (t *Tree[K, V]) DeleteMin() (k K, v V) {
 		v = deleted.value
 	}
 	t.length--
-	return k, v
+	return k, v, true
 }
 
-func (t *Tree[K, V]) DeleteMax() (k K, v V) {
+func (t *Tree[K, V]) DeleteMax() (k K, v V, ok bool) {
+	if t.root == nil {
+		return k, v, false
+	}
 	var deleted *node[K, V]
 	t.root, deleted = t.root.deleteMax()
 	if deleted != nil {
@@ -102,5 +113,5 @@ func (t *Tree[K, V]) DeleteMax() (k K, v V) {
 		v = deleted.value
 	}
 	t.length--
-	return k, v
+	return k, v, true
 }
