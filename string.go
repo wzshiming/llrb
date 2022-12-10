@@ -29,7 +29,7 @@ func (n *node[K, V]) format(wr io.Writer, pre edges, edge edge) {
 		n.left.format(wr, append(pre, es), edgeLeft)
 	}
 
-	fmt.Fprintf(wr, "%s %v: %v\n", append(pre, edge), n.key, n.value)
+	_, _ = fmt.Fprintf(wr, "%s %v: %v\n", append(pre, edge), n.key, n.value)
 
 	{
 		es := edgeSpace
@@ -70,9 +70,5 @@ var edgeMap = map[edge]string{
 }
 
 func (e edge) String() string {
-	v, ok := edgeMap[e]
-	if ok {
-		return v
-	}
-	return ""
+	return edgeMap[e]
 }

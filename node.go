@@ -62,8 +62,8 @@ func (n *node[K, V]) deleteMax() (*node[K, V], *node[K, V]) {
 		n = n.moveRedRight()
 	}
 
-	var deleted *node[K, V]
-	n.right, deleted = n.right.deleteMax()
+	right, deleted := n.right.deleteMax()
+	n.right = right
 
 	return n.fixUp(), deleted
 }
@@ -81,8 +81,8 @@ func (n *node[K, V]) deleteMin() (*node[K, V], *node[K, V]) {
 		n = n.moveRedLeft()
 	}
 
-	var deleted *node[K, V]
-	n.left, deleted = n.left.deleteMin()
+	left, deleted := n.left.deleteMin()
+	n.left = left
 
 	return n.fixUp(), deleted
 }
@@ -116,10 +116,9 @@ func (n *node[K, V]) Range(fn func(K, V) bool) {
 		return
 	}
 	n.left.Range(fn)
-	if !fn(n.key, n.value) {
-		return
+	if fn(n.key, n.value) {
+		n.right.Range(fn)
 	}
-	n.right.Range(fn)
 }
 
 func (n *node[K, V]) Min() *node[K, V] {

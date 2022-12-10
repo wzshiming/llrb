@@ -2,17 +2,48 @@ package llrb
 
 import (
 	"reflect"
+	"strconv"
 	"testing"
+
+	"golang.org/x/exp/rand"
+	"golang.org/x/exp/slices"
 )
 
 func TestTree(t *testing.T) {
 	tree := NewTree[int, int]()
+
+	_, _, ok := tree.Min()
+	if ok {
+		t.Errorf("the tree is not empty")
+	}
+
+	_, _, ok = tree.Max()
+	if ok {
+		t.Errorf("the tree is not empty")
+	}
+
+	_, _, ok = tree.DeleteMin()
+	if ok {
+		t.Errorf("the tree is not empty")
+	}
+
+	_, _, ok = tree.DeleteMax()
+	if ok {
+		t.Errorf("the tree is not empty")
+	}
+
+	_, ok = tree.Delete(0)
+	if ok {
+		t.Errorf("the tree is not empty")
+	}
+
 	for i := 0; i != 5; i++ {
 		tree.Put(i, i*i)
 	}
 	for _, number := range []int{0, 1, 2, 3, 4, 5, 9, 8, 7, 6} {
 		tree.Put(number, number*number)
 	}
+
 	for _, number := range []int{0, 1, 5, 8, 9} {
 		got, found := tree.Get(number)
 		if !found {
@@ -89,6 +120,58 @@ func BenchmarkFind(b *testing.B) {
 	b.Run("failure", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
 			intRBTree.Get(i % base / 2)
+		}
+	})
+}
+
+func FuzzTree(f *testing.F) {
+	for i := 0; i < 1000; i++ {
+		k := strconv.FormatInt(int64(rand.Int()), 10)
+		f.Add(k)
+	}
+
+	tree := NewTree[string, string]()
+	f.Fuzz(func(t *testing.T, key string) {
+		value := key
+
+		got, ok := tree.Get(key)
+		if ok {
+			_, ok := tree.Delete(key)
+			if !ok {
+				t.Errorf("failed to delete %s", key)
+			}
+			if got != value {
+				t.Errorf("value is %s should be %s", got, value)
+			}
+		} else {
+			ok := tree.Put(key, value)
+			if !ok {
+				t.Errorf("failed to put %s", key)
+			}
+
+			got, found := tree.Get(key)
+			if !found {
+				t.Errorf("failed to find %s", key)
+			}
+			if got != value {
+				t.Errorf("value is %s should be %s", got, value)
+			}
+
+			if rand.Int()%2 == 0 {
+				_, ok := tree.Delete(key)
+				if !ok {
+					t.Errorf("failed to delete %s", key)
+				}
+			}
+		}
+
+		keys := tree.Keys()
+		if !slices.IsSorted(keys) {
+			t.Errorf("keys are not sorted")
+		}
+
+		if !tree.root.check() {
+			t.Errorf("tree is not valid")
 		}
 	})
 }
