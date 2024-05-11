@@ -111,14 +111,20 @@ func (n *node[K, V]) fixUp() *node[K, V] {
 	return n
 }
 
-func (n *node[K, V]) Range(fn func(K, V) bool) {
+func (n *node[K, V]) Range(fn func(K, V) bool) bool {
 	if n == nil {
-		return
+		return true
 	}
-	n.left.Range(fn)
-	if fn(n.key, n.value) {
-		n.right.Range(fn)
+	if !n.left.Range(fn) {
+		return false
 	}
+	if !fn(n.key, n.value) {
+		return false
+	}
+	if !n.right.Range(fn) {
+		return false
+	}
+	return true
 }
 
 func (n *node[K, V]) Min() *node[K, V] {
